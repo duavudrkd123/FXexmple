@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0">
+         <children>
+            <ImageView fitHeight="311.0" fitWidth="274.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../../../OneDrive/바탕화~1-DESKTOP-GV9NVNI-1728534/qldiw-4.jpg" />
+               </image>
+            </ImageView>
+            <Button layoutX="-4.0" layoutY="171.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="76.0" text="이전" />
+            <Button contentDisplay="RIGHT" layoutX="70.0" layoutY="171.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="204.0" text="다음" textAlignment="RIGHT" />
+         </children>
+      </AnchorPane>
+   </children>
+</VBox>
