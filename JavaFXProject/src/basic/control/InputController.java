@@ -1,6 +1,10 @@
 package basic.control;
 
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 import javafx.event.ActionEvent;
@@ -54,8 +58,37 @@ public class InputController implements Initializable {
 			showPopup("공개여부를 지정하세요");
 		} else if (dateExit.getValue() == null) {
 			showCustomDialog("날짜를 입력하세요");
+		}  else {
+			insetData();
 		}
 
+	}
+	public void insetData() {
+		String url = "jdbc:oracle:thin:@localhost:1521:xe";
+		String user = "hr", passwd = "hr";
+		Connection conn = null;
+		try {
+			Class.forName("oracle.jdbc.driver.OracleDriver");
+			conn = DriverManager.getConnection(url, user,passwd);
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		String sql = "insert into new_board values(?, ?, ?, ?, ?)";
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, txtTitle.getText());
+			pstmt.setString(2, txtPassword.getText());
+			pstmt.setString(3, comboPublic.getValue());
+			pstmt.setString(4, dateExit.getValue().toString());
+			pstmt.setString(5, txtContent.getText());
+			
+			int r = pstmt.executeUpdate();
+			System.out.println(r + " 건 이 입력됨.");
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void showCustomDialog(String msg) {

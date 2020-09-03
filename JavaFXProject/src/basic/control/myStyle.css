@@ -1,0 +1,23 @@
+Label {
+	-fx-text-fill: #00ff80;
+	-fx-border-color: brown;
+	-fx-border-radius: 5;
+}
+
+Button {
+	-fx-background-color: rgb(143, 66, 225);
+	-fx-border-radius: 3;
+	-fx-text-fill: white;
+}
+
+#addStyle {
+	-fx-background-color: rgb(0, 255, 225);
+	-fx-border-radius: 5;
+	-fx-text-fill: #408080;
+}
+
+.lBlclass {
+	-fx-text-fill: rgba(100, 100, 100);
+	-fx-border-color: #ff8040;
+	-fx-border-radius: 2;
+}

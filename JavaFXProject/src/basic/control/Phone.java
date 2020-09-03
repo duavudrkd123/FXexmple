@@ -1,22 +1,27 @@
 package basic.control;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 public class Phone {
-	StringProperty model;
-	IntegerProperty price;
+	SimpleStringProperty smartPhone;
+	SimpleStringProperty image;
 	
-	public void setModel(String model) {
-		this.model.set(model);
-		
+	public Phone(String smartPhone, String image) {
+		this.smartPhone = new SimpleStringProperty(smartPhone);
+		this.image = new SimpleStringProperty(image);
 	}
-	public String getModel() {
-		return this.model.get();
-		
+	
+	public void setSmartPhone(String smartPhone) {
+	this.smartPhone.set(smartPhone);	
 	}
-	public StringProperty modelProperty() {
-		return this.model;
+	public String getSmartPhone() {
+		return this.smartPhone.get();
+	}
+	public void setImage(String image) {
+	this.image.set(image);	
+	}
+	public String getImage() {
+		return this.image.get();
 	}
 
 }
