@@ -2,8 +2,14 @@ package basic.example;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 
+import basic.control.Board;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -87,91 +93,120 @@ public class RootController implements Initializable {
 
 	} // initialize()
 
+	// sql 접속하기
+	public ObservableList<Student> getBoardList() {
+		String url = "jdbc:oracle:thin:@localhost:1521:xe";
+		String user = "hr", passwd = "hr";
+		Connection conn = null;
+		try {
+			Class.forName("oracle.jdbc.driver.OracleDriver");
+			conn = DriverManager.getConnection(url, user, passwd);
+
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		String sql = "select * from student order by 1";
+		ObservableList<Student> list = FXCollections.observableArrayList();
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				Student student = new Student(rs.getNString("title"), rs.getNString("password"), rs.getNString("publicity"),
+						rs.getNString("exit_date"), rs.getNString("content"));
+				list.add(Student);
+
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
 	public void handleDoubleClickAction(String name) {
 		Stage stage = new Stage(StageStyle.UTILITY);
 		stage.initModality(Modality.WINDOW_MODAL);
 		stage.initOwner(primaryStage);
-		
+
 		AnchorPane ap = new AnchorPane();
 		ap.setPrefSize(210, 230);
-		
-		Label lName ,lKorean, lMath, lEnglish;
+
+		Label lName, lKorean, lMath, lEnglish;
 		TextField tName, tKorean, tMath, tEnglish;
 		Button btnupdate = null;
-		
+
 		lName = new Label("이롬");
 		lName.setLayoutX(35);
 		lName.setLayoutY(30);
-		
+
 		lKorean = new Label("국어");
 		lKorean.setLayoutX(35);
 		lKorean.setLayoutY(75);
-		
+
 		lMath = new Label("수학");
 		lMath.setLayoutX(35);
 		lMath.setLayoutY(99);
-		
+
 		lEnglish = new Label("영어");
 		lEnglish.setLayoutX(35);
 		lEnglish.setLayoutY(132);
-		
+
 		tName = new TextField();
 		tName.setPrefWidth(110);
 		tName.setLayoutX(72);
 		tName.setLayoutY(30);
-		
-		//name 수정불가
+
+		// name 수정불가
 		tName.setText(name);
 		tName.setEditable(false);
-		
+
 		tKorean = new TextField();
 		tKorean.setPrefWidth(110);
 		tKorean.setLayoutX(72);
 		tKorean.setLayoutY(69);
-		
+
 		tMath = new TextField();
 		tMath.setPrefWidth(110);
 		tMath.setLayoutX(72);
 		tMath.setLayoutY(95);
-		
+
 		tEnglish = new TextField();
 		tEnglish.setPrefWidth(110);
 		tEnglish.setLayoutX(72);
 		tEnglish.setLayoutY(128);
-		
-		
+
 //		이름기준으로 국어,수학,영어점수 ..ap. 화면에 입력.
-		for(Student stu : list) {
+		for (Student stu : list) {
 			if (stu.getName().equals(name)) {
 				tMath.setText(String.valueOf(stu.getMath()));
 				tKorean.setText(String.valueOf(stu.getKorean()));
 				tEnglish.setText(String.valueOf(stu.getEnglish()));
-				
+
 				btnupdate = new Button("수정");
 				btnupdate.setLayoutX(85);
 				btnupdate.setLayoutY(150);
 				btnupdate.setOnAction(new EventHandler<ActionEvent>() {
 
 					@Override
-					public void handle(ActionEvent event) {for (int i = 0 ; i < list.size(); i++ ) {
-						if(list.get(i).getName().equals(name)) {
-							Student student = new Student(name, Integer.parseInt(tKorean.getText()), 
-									Integer.parseInt(tMath.getText()), Integer.parseInt(tEnglish.getText())
-						);
-						list.set(i,	student);
-					}
-					}
+					public void handle(ActionEvent event) {
+						for (int i = 0; i < list.size(); i++) {
+							if (list.get(i).getName().equals(name)) {
+								Student student = new Student(name, Integer.parseInt(tKorean.getText()),
+										Integer.parseInt(tMath.getText()), Integer.parseInt(tEnglish.getText()));
+								list.set(i, student);
+							}
+						}
 					}
 				});
-				
+
 			}
 		}
-		
-		ap.getChildren().addAll(btnupdate, tName, tKorean, tMath, tEnglish, lName ,lKorean, lMath, lEnglish);
+
+		ap.getChildren().addAll(btnupdate, tName, tKorean, tMath, tEnglish, lName, lKorean, lMath, lEnglish);
 		Scene scene = new Scene(ap);
 		stage.setScene(scene);
 		stage.show();
-		
+
 	}
 
 	public void handleBtnChartAction() {
@@ -217,16 +252,16 @@ public class RootController implements Initializable {
 			}
 			seriesE.setData(englList);
 			barChart.getData().add(seriesE);
-			
-			Button btnClose = (Button) chart.lookup("#btnClose");
-	         btnClose.setOnAction(new EventHandler<ActionEvent>() {
 
-	            @Override
-	            public void handle(ActionEvent arg0) {
-	               stage.close();
-	            }
-	      
-	         });
+			Button btnClose = (Button) chart.lookup("#btnClose");
+			btnClose.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent arg0) {
+					stage.close();
+				}
+
+			});
 
 		} catch (IOException e1) {
 			e1.printStackTrace();
