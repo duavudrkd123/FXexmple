@@ -12,6 +12,8 @@
 		<TableView fx:id="tableView" prefWidth="420"
 			prefHeight="200">
 			<columns>
+			<TableColumn prefWidth="100" resizable="false"
+					text="Id" />
 				<TableColumn prefWidth="100" resizable="false"
 					text="Name" />
 				<TableColumn prefWidth="100" resizable="false"

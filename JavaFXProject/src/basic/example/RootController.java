@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 
+import basic.common.ConnectionDB;
 import basic.control.Board;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -39,6 +40,7 @@ public class RootController implements Initializable {
 	@FXML
 	Button btnAdd, btnBarChart;
 	ObservableList<Student> list;
+	Connection conn = ConnectionDB.getDB(); // DB연결하는거?
 
 	Stage primaryStage;
 
@@ -50,17 +52,20 @@ public class RootController implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
 		TableColumn<Student, ?> tc = tableView.getColumns().get(0);// 첫번째 칼럼/
-		tc.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-		tc = tableView.getColumns().get(1);
-		tc.setCellValueFactory(new PropertyValueFactory<>("korean"));
+		tc.setCellValueFactory(new PropertyValueFactory<>("id"));
+		tc = tableView.getColumns().get(1); // id를 가져오는것 어디서?? Student class에서
+		tc.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tc = tableView.getColumns().get(2);
-		tc.setCellValueFactory(new PropertyValueFactory<>("math"));
+		tc.setCellValueFactory(new PropertyValueFactory<>("korean"));
 		tc = tableView.getColumns().get(3);
+		tc.setCellValueFactory(new PropertyValueFactory<>("math"));
+		tc = tableView.getColumns().get(4);
 		tc.setCellValueFactory(new PropertyValueFactory<>("english"));
 
 		list = FXCollections.observableArrayList();
 
+		getBoardList();
 		tableView.setItems(list);
 
 		// 추가버튼
@@ -95,25 +100,15 @@ public class RootController implements Initializable {
 
 	// sql 접속하기
 	public ObservableList<Student> getBoardList() {
-		String url = "jdbc:oracle:thin:@localhost:1521:xe";
-		String user = "hr", passwd = "hr";
-		Connection conn = null;
-		try {
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			conn = DriverManager.getConnection(url, user, passwd);
-
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
 		String sql = "select * from student order by 1";
-		ObservableList<Student> list = FXCollections.observableArrayList();
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
-				Student student = new Student(rs.getNString("title"), rs.getNString("password"), rs.getNString("publicity"),
-						rs.getNString("exit_date"), rs.getNString("content"));
-				list.add(Student);
+				Student student = new Student(rs.getString("ID"), rs.getString("NAME"),
+						rs.getInt("KOR"), rs.getInt("MAT"), rs.getInt("ENG"));
+				list.add(student);
+				tableView.setItems(list);
 
 			}
 
@@ -131,9 +126,13 @@ public class RootController implements Initializable {
 		AnchorPane ap = new AnchorPane();
 		ap.setPrefSize(210, 230);
 
-		Label lName, lKorean, lMath, lEnglish;
-		TextField tName, tKorean, tMath, tEnglish;
+		Label lId, lName, lKorean, lMath, lEnglish;
+		TextField tId, tName, tKorean, tMath, tEnglish;
 		Button btnupdate = null;
+		
+		lId = new Label("학번");
+		lId.setLayoutX(35);
+		lId.setLayoutY(5);
 
 		lName = new Label("이롬");
 		lName.setLayoutX(35);
@@ -150,6 +149,11 @@ public class RootController implements Initializable {
 		lEnglish = new Label("영어");
 		lEnglish.setLayoutX(35);
 		lEnglish.setLayoutY(132);
+		
+		tId = new TextField();
+		tId.setPrefWidth(110);
+		tId.setLayoutX(72);
+		tId.setLayoutY(5);
 
 		tName = new TextField();
 		tName.setPrefWidth(110);
@@ -175,9 +179,11 @@ public class RootController implements Initializable {
 		tEnglish.setLayoutX(72);
 		tEnglish.setLayoutY(128);
 
-//		이름기준으로 국어,수학,영어점수 ..ap. 화면에 입력.
+//		ID기준으로, 이름, 국어,수학,영어점수 ..ap. 화면에 입력.
 		for (Student stu : list) {
 			if (stu.getName().equals(name)) {
+				tName.setText(String.valueOf(stu.getName()));
+				tId.setText(String.valueOf(stu.getId()));
 				tMath.setText(String.valueOf(stu.getMath()));
 				tKorean.setText(String.valueOf(stu.getKorean()));
 				tEnglish.setText(String.valueOf(stu.getEnglish()));
@@ -191,7 +197,7 @@ public class RootController implements Initializable {
 					public void handle(ActionEvent event) {
 						for (int i = 0; i < list.size(); i++) {
 							if (list.get(i).getName().equals(name)) {
-								Student student = new Student(name, Integer.parseInt(tKorean.getText()),
+								Student student = new Student(tId.getId(), name, Integer.parseInt(tKorean.getText()),
 										Integer.parseInt(tMath.getText()), Integer.parseInt(tEnglish.getText()));
 								list.set(i, student);
 							}
@@ -202,7 +208,7 @@ public class RootController implements Initializable {
 			}
 		}
 
-		ap.getChildren().addAll(btnupdate, tName, tKorean, tMath, tEnglish, lName, lKorean, lMath, lEnglish);
+		ap.getChildren().addAll(btnupdate, tId, tName, tKorean, tMath, tEnglish, lId, lName, lKorean, lMath, lEnglish);
 		Scene scene = new Scene(ap);
 		stage.setScene(scene);
 		stage.show();
@@ -287,11 +293,12 @@ public class RootController implements Initializable {
 
 				@Override
 				public void handle(ActionEvent arg0) {
+					TextField txtID =(TextField) parent.lookup("#txtId");
 					TextField txtName = (TextField) parent.lookup("#txtName");
-					TextField txtKorean = (TextField) parent.lookup("#txtKorean");
+		 			TextField txtKorean = (TextField) parent.lookup("#txtKorean");
 					TextField txtMath = (TextField) parent.lookup("#txtMath");
 					TextField txtEnglish = (TextField) parent.lookup("#txtEnglish");
-					Student student = new Student(txtName.getText(), Integer.parseInt(txtKorean.getText()),
+					Student student = new Student(txtID.getText(), txtName.getText(), Integer.parseInt(txtKorean.getText()),
 							Integer.parseInt(txtMath.getText()), Integer.parseInt(txtEnglish.getText()));
 
 					list.add(student);
@@ -299,7 +306,7 @@ public class RootController implements Initializable {
 					stage.close();
 				}
 			});
-// 추가화면에 있는 취소버튼 : 수리해야됨
+// 추가화면에 있는 취소버튼
 
 			Button btnFormCancel = (Button) parent.lookup("#btnFormCancel");
 			btnFormCancel.setOnAction(e -> {
