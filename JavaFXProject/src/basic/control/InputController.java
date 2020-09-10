@@ -41,7 +41,7 @@ public class InputController implements Initializable {
 	private TextArea txtContent;
 	@FXML
 	Button btnReg, btnCancel;
-
+	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
